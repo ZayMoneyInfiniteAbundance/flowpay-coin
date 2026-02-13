@@ -1,7 +1,4 @@
-node_modules
-.DS_Store
-token-info.json
+node_modules/
 .flowpay-data*
 .vercel
-
-.vercel
+founder-key.json

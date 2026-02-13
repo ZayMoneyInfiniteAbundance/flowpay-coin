@@ -3,6 +3,14 @@
   dockerfilePath = "Dockerfile"
 
 [deploy]
-  startCommand = "node network/server.js --mine"
+  startCommand = "node network/node.js --port $PORT --api 7001 --mine"
   healthcheckPath = "/"
   healthcheckTimeout = 30
+
+[[services]]
+  protocol = "tcp"
+  internalPort = 6001
+
+[[services]]
+  protocol = "tcp"  
+  internalPort = 7001

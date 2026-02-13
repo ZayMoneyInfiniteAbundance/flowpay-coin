@@ -1,45 +1,41 @@
 /**
- * FlowPay Coin — Canonical Genesis Block
+ * FlowPay Coin (FPC) — Genesis Block
  * 
- * This is Block #0 of the FPC network.
- * Every node starts from this exact block.
- * 
- * Mined: February 13, 2026
- * "For Mom. For the family. Built from the whitepaper."
+ * Mined on: 2026-02-13T18:01:34.315Z
+ * Message: "For Mom. For the family. Built from scratch."
+ * Allocation: 1,000,000 FPC to Founder (b8c025bdeb9c2915c7d13a523d4a206937a4db1a)
  */
 
 const GENESIS = {
-    height: 0,
-    previousHash: '0000000000000000000000000000000000000000000000000000000000000000',
-    timestamp: 1770969189273,
-    merkleRoot: 'bf6e856e15f62523cc87336de5c8d62518f4a69d844e6d628d102fca949c1f78',
-    nonce: 168039,
-    hash: '0000ad97e4a235d6bd115f460eba4ce1422b202a66a285aec945ee46de78d59a',
-    difficulty: 4,
-    miningTime: 771,
-    transaction: {
-        inputs: [{ txHash: '0'.repeat(64), outputIndex: 0 }],
-        outputs: [{ address: 'e15c65c6268f49044d423f71cfab78c271c6543a', amount: 5000 }],
-        signatures: [],
-        isCoinbase: true,
-        timestamp: 1770969189273,
-        hash: 'bf6e856e15f62523cc87336de5c8d62518f4a69d844e6d628d102fca949c1f78'
-    },
-    // The address that received the genesis coinbase
-    founderAddress: 'e15c65c6268f49044d423f71cfab78c271c6543a',
-    // FPC network parameters
-    networkId: 'flowpay-mainnet',
-    maxSupply: 21_000_000,
-    initialReward: 50,
-    halvingInterval: 210_000 // halve reward every 210K blocks
+    "height": 0,
+    "timestamp": 1771005694054,
+    "previousHash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "hash": "000041d1864e338381728615daa0983460e14ccdf8563fc3d027582339e213f8",
+    "nonce": 51110,
+    "difficulty": 4,
+    "merkleRoot": "d4abd0752a74ac903835613dc382a29a41ca9235770f09a41ad42afacceafb23",
+    "miningTime": 260,
+    "transaction": {
+        "inputs": [
+            {
+                "txHash": "0000000000000000000000000000000000000000000000000000000000000000",
+                "outputIndex": 0,
+                "signature": "For Mom. For the family. Built from scratch."
+            }
+        ],
+        "outputs": [
+            {
+                "address": "b8c025bdeb9c2915c7d13a523d4a206937a4db1a",
+                "amount": 1000000
+            }
+        ],
+        "isCoinbase": true,
+        "timestamp": 1771005694054,
+        "hash": "d4abd0752a74ac903835613dc382a29a41ca9235770f09a41ad42afacceafb23"
+    }
 };
 
-// Seed nodes — always-on nodes for peer discovery
-const SEED_NODES = [
-    // Add your deployed seed node URL here after Railway/Render deployment
-    // 'wss://flowpay-node.up.railway.app'
-];
+// Seed nodes for P2P discovery
+const SEED_NODES = [];
 
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { GENESIS, SEED_NODES };
-}
+module.exports = { GENESIS, SEED_NODES };

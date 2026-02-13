@@ -2,9 +2,9 @@
     "name": "flowpay-coin",
     "version": "1.0.0",
     "description": "FlowPay Coin — Bitcoin whitepaper implemented from scratch in pure JavaScript",
-    "main": "network/server.js",
+    "main": "network/node.js",
     "bin": {
-        "flowpay-node": "./network/server.js",
+        "flowpay-node": "./network/node.js",
         "flowpay-miner": "./network/miner.js"
     },
     "scripts": {
