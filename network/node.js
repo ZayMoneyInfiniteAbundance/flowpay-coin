@@ -23,6 +23,7 @@ const {
     sha256, Blockchain, Wallet, Transaction, Block, MerkleTree,
     MINING_REWARD, WALLET_REGISTRY, generatePrivateKey, derivePublicKey, deriveAddress
 } = require('../blockchain.js');
+const { GENESIS, SEED_NODES } = require('../genesis.js');
 
 // ============================================================
 // Configuration
@@ -35,9 +36,10 @@ const getArg = (flag, def) => {
 
 const P2P_PORT = parseInt(getArg('--port', '6001'));
 const API_PORT = parseInt(getArg('--api', String(P2P_PORT + 1000)));
-const SEED_PEERS = getArg('--peers', '')
-    .split(',')
-    .filter(Boolean);
+const SEED_PEERS = [
+    ...SEED_NODES,
+    ...getArg('--peers', '').split(',').filter(Boolean)
+];
 const AUTO_MINE = args.includes('--mine');
 const DATA_DIR = getArg('--data', path.join(process.cwd(), '.flowpay-data'));
 const DIFFICULTY = parseInt(getArg('--difficulty', '4'));
@@ -81,12 +83,12 @@ function initNode() {
             rebuildChainFromData(chainData);
             log(`♻️  Loaded chain: ${blockchain.chain.length} blocks`);
         } catch (e) {
-            log(`⚠️  Chain file corrupt, starting fresh`);
-            blockchain.initialize(nodeWallet.address);
+            log(`⚠️  Chain file corrupt, loading canonical genesis`);
+            loadCanonicalGenesis();
         }
     } else {
-        blockchain.initialize(nodeWallet.address);
-        log(`⛏️  Mined genesis block`);
+        loadCanonicalGenesis();
+        log(`📦 Loaded canonical genesis: ${GENESIS.hash.substring(0, 16)}...`);
     }
 
     saveChain();
@@ -111,6 +113,29 @@ function rebuildChainFromData(data) {
         blockchain.chain.push(block);
         blockchain._processBlockUTXOs(block);
     }
+}
+
+function loadCanonicalGenesis() {
+    // Load the hardcoded genesis block — same for ALL FPC nodes
+    const g = GENESIS;
+    const tx = new Transaction(
+        g.transaction.inputs,
+        g.transaction.outputs,
+        g.transaction.isCoinbase
+    );
+    tx.timestamp = g.transaction.timestamp;
+    tx.hash = g.transaction.hash;
+    tx.signatures = g.transaction.signatures || [];
+
+    const block = new Block(g.height, g.previousHash, [tx], g.difficulty);
+    block.timestamp = g.timestamp;
+    block.merkleRoot = g.merkleRoot;
+    block.nonce = g.nonce;
+    block.hash = g.hash;
+    block.miningTime = g.miningTime;
+
+    blockchain.chain.push(block);
+    blockchain._processBlockUTXOs(block);
 }
 
 function saveChain() {
