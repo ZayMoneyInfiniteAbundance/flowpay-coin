@@ -60,48 +60,29 @@ fi
 echo ""
 echo "💰 Balance: $(solana balance)"
 
+if [ "$NETWORK" = "mainnet" ]; then
+    BALANCE=$(solana balance | awk '{print $1}')
+    REQUIRED="0.05"
+    if (( $(echo "$BALANCE < $REQUIRED" | bc -l) )); then
+        echo "❌ Insufficient SOL balance: $BALANCE SOL"
+        echo "   You need at least $REQUIRED SOL on mainnet."
+        exit 1
+    fi
+fi
+
 # 4. Create the SPL token (this is the mint)
 echo ""
 echo "🪙 Creating FPC token mint..."
 TOKEN_MINT=$(spl-token create-token --decimals $DECIMALS 2>&1 | grep "Creating token" | awk '{print $3}')
-echo "✅ Token Mint: $TOKEN_MINT"
 
-# 5. Create a token account to hold the supply
-echo ""
-echo "📦 Creating token account..."
-TOKEN_ACCOUNT=$(spl-token create-account $TOKEN_MINT 2>&1 | grep "Creating account" | awk '{print $3}')
-echo "✅ Token Account: $TOKEN_ACCOUNT"
+# ... (rest of the script)
 
-# 6. Mint the total supply
-echo ""
-echo "⛏️  Minting $TOTAL_SUPPLY FPC..."
-spl-token mint $TOKEN_MINT $TOTAL_SUPPLY
-echo "✅ Minted!"
-
-# 7. Display summary
-echo ""
-echo "================================================="
-echo "  🎉 FPC TOKEN CREATED SUCCESSFULLY"
-echo "================================================="
-echo ""
-echo "  Token Mint:    $TOKEN_MINT"
-echo "  Token Account: $TOKEN_ACCOUNT"
-echo "  Total Supply:  $TOTAL_SUPPLY FPC"
-echo "  Decimals:      $DECIMALS"
-echo "  Network:       $NETWORK"
-echo "  Owner Wallet:  $WALLET"
-echo ""
-echo "  View on Solana Explorer:"
-if [ "$NETWORK" = "mainnet" ]; then
-    echo "  https://explorer.solana.com/address/$TOKEN_MINT"
-else
-    echo "  https://explorer.solana.com/address/$TOKEN_MINT?cluster=devnet"
-fi
-echo ""
-echo "  Next steps:"
-echo "  1. Add metadata (name, symbol, logo) via Metaplex"
-echo "  2. Share the token mint address"
-echo "  3. People can add FPC to Phantom/Solflare wallets"
+echo "  Next steps (CRITICAL for Mainnet):"
+echo "  1. Add name/logo via Metaplex (otherwise it shows as 'Unknown Token')"
+echo "     Go to: https://token-creator.tool.solana.com/"
+echo "     Connect wallet and update metadata for mint: $TOKEN_MINT"
+echo "  2. Share the token mint address on Reddit"
+echo "  3. Create a liquidity pool on Raydium (costs ~0.5-2 SOL)"
 echo "================================================="
 
 # Save token info to a file
