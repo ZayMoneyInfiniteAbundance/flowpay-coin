@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowPay Coin (FPC) — Built From the Bitcoin Whitepaper</title>
+
+    <!-- SEO & Social Sharing -->
+    <meta name="description"
+        content="We read all 12 sections of Satoshi Nakamoto's Bitcoin whitepaper and built a working blockchain from scratch. No libraries. Pure JavaScript. Try the live demo.">
+    <meta property="og:title" content="FlowPay Coin — Bitcoin's Logic, Rebuilt From Scratch">
+    <meta property="og:description"
+        content="SHA-256 proof-of-work, UTXO transactions, Merkle trees — all implemented in pure JavaScript. Try the live demo.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://flowpay.app/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="FlowPay Coin — Bitcoin Rebuilt From Scratch">
+    <meta name="twitter:description" content="Every section of Satoshi's whitepaper, implemented in pure JavaScript.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #050510;
+            --bg-secondary: #0a0a1a;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.06);
+            --text-primary: #e8e8f0;
+            --text-secondary: rgba(255, 255, 255, 0.5);
+            --accent-1: #667eea;
+            --accent-2: #764ba2;
+            --accent-3: #f953c6;
+            --accent-4: #00d4aa;
+            --accent-5: #ffa94d;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ===== ANIMATED BACKGROUND ===== */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image:
+                linear-gradient(rgba(102, 126, 234, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(102, 126, 234, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .bg-glow {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(180px);
+            opacity: 0.15;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .bg-glow-1 {
+            background: var(--accent-1);
+            top: -200px;
+            left: -100px;
+            animation: floatGlow 20s ease-in-out infinite;
+        }
+
+        .bg-glow-2 {
+            background: var(--accent-3);
+            bottom: -200px;
+            right: -100px;
+            animation: floatGlow 25s ease-in-out infinite reverse;
+        }
+
+        .bg-glow-3 {
+            background: var(--accent-4);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: floatGlow 30s ease-in-out infinite;
+        }
+
+        @keyframes floatGlow {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            25% {
+                transform: translate(50px, -30px) scale(1.1);
+            }
+
+            50% {
+                transform: translate(-30px, 50px) scale(0.9);
+            }
+
+            75% {
+                transform: translate(40px, 20px) scale(1.05);
+            }
+        }
+
+        /* ===== LAYOUT ===== */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== NAV ===== */
+        nav {
+            padding: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            background: rgba(5, 5, 16, 0.7);
+            border-bottom: 1px solid var(--border);
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 1.3rem;
+        }
+
+        .nav-logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-3));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-cta {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2)) !important;
+            color: white !important;
+            padding: 10px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            padding: 120px 0 80px;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 100px;
+            padding: 8px 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--accent-1);
+            margin-bottom: 32px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .hero-badge .pulse {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-4);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.5);
+            }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            animation: fadeInUp 0.8s ease 0.1s both;
+        }
+
+        .hero h1 .gradient-text {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-3), var(--accent-5));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-sub {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 48px;
+            line-height: 1.7;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.3s both;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: white;
+            padding: 16px 36px;
+            border-radius: 14px;
+            border: none;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.35);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            padding: 16px 36px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== LIVE STATS BAR ===== */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2px;
+            background: var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin: 80px 0 100px;
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+
+        .stat-item {
+            background: var(--bg-secondary);
+            padding: 28px 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-4), var(--accent-1));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        /* ===== WHITEPAPER SECTIONS ===== */
+        .sections {
+            padding: 40px 0 100px;
+        }
+
+        .sections-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .sections-header h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .sections-header p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+        }
+
+        .wp-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .wp-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wp-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(102, 126, 234, 0.2);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .wp-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-3));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .wp-card:hover::before {
+            opacity: 1;
+        }
+
+        .wp-section-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-1);
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .wp-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .wp-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .wp-card .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 14px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--accent-4);
+        }
+
+        .wp-card .status::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--accent-4);
+            border-radius: 50%;
+        }
+
+        /* ===== CODE PREVIEW ===== */
+        .code-section {
+            padding: 80px 0;
+        }
+
+        .code-section .sections-header {
+            margin-bottom: 40px;
+        }
+
+        .code-preview {
+            background: #0d1117;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .code-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .code-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .code-dot.red {
+            background: #ff5f57;
+        }
+
+        .code-dot.yellow {
+            background: #febc2e;
+        }
+
+        .code-dot.green {
+            background: #28c840;
+        }
+
+        .code-filename {
+            margin-left: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .code-body {
+            padding: 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            line-height: 1.8;
+            overflow-x: auto;
+            color: #c9d1d9;
+        }
+
+        .code-body .comment {
+            color: #8b949e;
+        }
+
+        .code-body .keyword {
+            color: #ff7b72;
+        }
+
+        .code-body .string {
+            color: #a5d6ff;
+        }
+
+        .code-body .func {
+            color: #d2a8ff;
+        }
+
+        .code-body .num {
+            color: #79c0ff;
+        }
+
+        .code-body .class {
+            color: #ffa657;
+        }
+
+        /* ===== MINING DEMO ===== */
+        .mining-section {
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .mining-demo {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 48px;
+            max-width: 700px;
+            margin: 40px auto 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mining-demo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-3), var(--accent-4));
+        }
+
+        .mining-hash {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            word-break: break-all;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .mining-hash .leading-zeros {
+            color: var(--accent-4);
+            font-weight: 700;
+        }
+
+        .mining-hash .rest {
+            color: var(--text-secondary);
+        }
+
+        .mining-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .mine-btn {
+            background: linear-gradient(135deg, var(--accent-4), #00b894);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 24px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .mine-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0, 212, 170, 0.3);
+        }
+
+        .mine-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .mining-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .mine-stat {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 10px;
+        }
+
+        .mine-stat-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--accent-1);
+        }
+
+        .mine-stat-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        /* ===== CTA ===== */
+        .cta-section {
+            padding: 100px 0;
+            text-align: center;
+        }
+
+        .cta-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(249, 83, 198, 0.1));
+            border: 1px solid rgba(102, 126, 234, 0.15);
+            border-radius: 24px;
+            padding: 60px 40px;
+        }
+
+        .cta-card h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .cta-card p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 36px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--accent-1);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .wp-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                padding: 80px 0 60px;
+            }
+
+            .mining-demo {
+                padding: 28px 20px;
+            }
+
+            .mining-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-card {
+                padding: 40px 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <!-- NAV -->
+    <nav>
+        <div class="container">
+            <div class="nav-brand">
+                <div class="nav-logo">F</div>
+                FlowPay
+            </div>
+            <div class="nav-links">
+                <a href="#whitepaper">Whitepaper</a>
+                <a href="#code">Code</a>
+                <a href="#mining">Try Mining</a>
+                <a href="https://github.com" target="_blank">GitHub</a>
+                <a href="index.html" class="nav-cta">Launch App →</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <div class="container">
+        <section class="hero">
+            <div class="hero-badge">
+                <span class="pulse"></span>
+                Open Source · Zero Dependencies · Pure JavaScript
+            </div>
+            <h1>
+                We Read the<br>
+                <span class="gradient-text">Bitcoin Whitepaper</span><br>
+                And Built It.
+            </h1>
+            <p class="hero-sub">
+                Every section. Every algorithm. SHA-256 proof-of-work, UTXO transactions,
+                Merkle trees, digital signatures — all implemented from scratch in vanilla JavaScript.
+                No libraries. No shortcuts.
+            </p>
+            <div class="hero-actions">
+                <a href="index.html" class="btn-primary">
+                    ⛏️ Try the Live Demo
+                </a>
+                <a href="#mining" class="btn-secondary">
+                    🔬 Mine a Block
+                </a>
+            </div>
+        </section>
+
+        <!-- LIVE STATS -->
+        <div class="stats-bar" id="live-stats">
+            <div class="stat-item">
+                <div class="stat-value" id="ls-blocks">—</div>
+                <div class="stat-label">Blocks Mined</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="ls-txs">—</div>
+                <div class="stat-label">Transactions</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="ls-hashrate">—</div>
+                <div class="stat-label">Hash Rate</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="ls-supply">21M</div>
+                <div class="stat-label">Max Supply</div>
+            </div>
+        </div>
+
+        <!-- WHITEPAPER SECTIONS -->
+        <section class="sections" id="whitepaper">
+            <div class="sections-header">
+                <h2>12 Sections. All Implemented.</h2>
+                <p>Every concept from Satoshi Nakamoto's whitepaper, running live in your browser.</p>
+            </div>
+            <div class="wp-grid">
+                <div class="wp-card">
+                    <div class="wp-section-num">SECTION 2</div>
+                    <h3>Transactions</h3>
+                    <p>Electronic coins as chains of digital signatures. UTXO model with inputs referencing previous
+                        outputs.</p>
+                    <div class="status">Implemented</div>
+                </div>
+                <div class="wp-card">
+                    <div class="wp-section-num">SECTION 3</div>
+                    <h3>Timestamp Server</h3>
+                    <p>Each block hash-links to the previous block, forming a tamper-evident chronological chain.</p>
+                    <div class="status">Implemented</div>
+                </div>
+                <div class="wp-card">
+                    <div class="wp-section-num">SECTION 4</div>
+                    <h3>Proof-of-Work</h3>
+                    <p>SHA-256 nonce scanning until the hash starts with the required number of zero bits.</p>
+                    <div class="status">Implemented</div>
+                </div>
+                <div class="wp-card">
+                    <div class="wp-section-num">SECTION 6</div>
+                    <h3>Incentive</h3>
+                    <p>50 FPC coinbase reward for each mined block. The miner creates new coins from nothing.</p>
+                    <div class="status">Implemented</div>
+                </div>
+                <div class="wp-card">
+                    <div class="wp-section-num">SECTION 7</div>
+                    <h3>Merkle Trees</h3>
+                    <p>Transactions hashed into a binary tree. Only the root is stored in the block header.</p>
+                    <div class="status">Implemented</div>
+                </div>
+                <div class="wp-card">
+                    <div class="wp-section-num">SECTION 8</div>
+                    <h3>Simplified Payment Verification</h3>
+                    <p>Verify tx inclusion via Merkle proofs without downloading the full chain.</p>
+                    <div class="status">Implemented</div>
+                </div>
+                <div class="wp-card">
+                    <div class="wp-section-num">SECTION 9</div>
+                    <h3>Combining & Splitting Value</h3>
+                    <p>Multi-input, multi-output transactions with automatic change calculation.</p>
+                    <div class="status">Implemented</div>
+                </div>
+                <div class="wp-card">
+                    <div class="wp-section-num">SECTION 10</div>
+                    <h3>Privacy</h3>
+                    <p>One-time addresses derived from SHA-256(SHA-256(privateKey)). No identity linkage.</p>
+                    <div class="status">Implemented</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CODE SHOWCASE -->
+        <section class="code-section" id="code">
+            <div class="sections-header">
+                <h2>See the Source</h2>
+                <p>~300 lines of pure JavaScript. No frameworks. No dependencies.</p>
+            </div>
+            <div class="code-preview">
+                <div class="code-header">
+                    <span class="code-dot red"></span>
+                    <span class="code-dot yellow"></span>
+                    <span class="code-dot green"></span>
+                    <span class="code-filename">blockchain.js</span>
+                </div>
+                <div class="code-body">
+                    <span class="comment">// §4 Proof-of-Work: Scan nonce until hash &lt; target</span>
+                    <span class="keyword">mine</span>(<span class="class">minerAddress</span>) {
+                    <span class="keyword">const</span> target = <span class="string">'0'</span>.<span
+                        class="func">repeat</span>(<span class="keyword">this</span>.difficulty);
+                    <span class="keyword">const</span> start = <span class="class">Date</span>.<span
+                        class="func">now</span>();
+                    <span class="keyword">let</span> attempts = <span class="num">0</span>;
+
+                    <span class="keyword">while</span> (!<span class="keyword">this</span>.hash.<span
+                        class="func">startsWith</span>(target)) {
+                    <span class="keyword">this</span>.nonce++;
+                    <span class="keyword">this</span>.hash = <span class="keyword">this</span>.<span
+                        class="func">calculateHash</span>();
+                    attempts++;
+                    }
+
+                    <span class="keyword">this</span>.miningTime = <span class="class">Date</span>.<span
+                        class="func">now</span>() - start;
+                    <span class="keyword">this</span>.miningAttempts = attempts;
+                    <span class="keyword">return</span> <span class="keyword">this</span>;
+                    }
+
+                    <span class="comment">// §7 Merkle Tree: Hash transactions into a binary tree</span>
+                    <span class="keyword">static</span> <span class="func">buildRoot</span>(<span
+                        class="class">hashes</span>) {
+                    <span class="keyword">if</span> (hashes.length === <span class="num">0</span>) <span
+                        class="keyword">return</span> <span class="func">sha256</span>(<span
+                        class="string">'empty'</span>);
+                    <span class="keyword">while</span> (hashes.length > <span class="num">1</span>) {
+                    <span class="keyword">const</span> next = [];
+                    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="num">0</span>; i
+                    &lt; hashes.length; i += <span class="num">2</span>) {
+                    <span class="keyword">const</span> left = hashes[i];
+                    <span class="keyword">const</span> right = hashes[i+<span class="num">1</span>] || left;
+                    next.<span class="func">push</span>(<span class="func">sha256</span>(left + right));
+                    }
+                    hashes = next;
+                    }
+                    <span class="keyword">return</span> hashes[<span class="num">0</span>];
+                    }
+                </div>
+            </div>
+        </section>
+
+        <!-- MINING DEMO -->
+        <section class="mining-section" id="mining">
+            <div class="sections-header">
+                <h2>Try Mining a Block</h2>
+                <p>Click the button below to run real SHA-256 proof-of-work in your browser.</p>
+            </div>
+            <div class="mining-demo">
+                <div class="mining-label">Latest Block Hash</div>
+                <div class="mining-hash" id="demo-hash">
+                    <span class="leading-zeros">0000</span><span class="rest">Click "Mine" to generate a block...</span>
+                </div>
+                <div class="mining-stats">
+                    <div class="mine-stat">
+                        <div class="mine-stat-val" id="demo-nonce">—</div>
+                        <div class="mine-stat-label">Nonce</div>
+                    </div>
+                    <div class="mine-stat">
+                        <div class="mine-stat-val" id="demo-time">—</div>
+                        <div class="mine-stat-label">Time</div>
+                    </div>
+                    <div class="mine-stat">
+                        <div class="mine-stat-val" id="demo-attempts">—</div>
+                        <div class="mine-stat-label">Attempts</div>
+                    </div>
+                </div>
+                <button class="mine-btn" id="mine-btn" onclick="demoMine()">⛏️ Mine a Block</button>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="cta-section">
+            <div class="cta-card">
+                <h2>Run the Full App</h2>
+                <p>Send payments, earn mining rewards, explore the blockchain — all running live in your browser.</p>
+                <div class="hero-actions">
+                    <a href="index.html" class="btn-primary">Launch FlowPay →</a>
+                    <a href="https://github.com" target="_blank" class="btn-secondary">⭐ Star on GitHub</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <p>Built with ❤️ from the <a href="https://bitcoin.org/bitcoin.pdf" target="_blank">Bitcoin whitepaper</a>.
+                100% open source.</p>
+            <p style="margin-top: 8px; opacity: 0.5">FlowPay Coin (FPC) — An educational blockchain implementation</p>
+        </div>
+    </footer>
+
+    <!-- BLOCKCHAIN ENGINE (for mining demo) -->
+    <script src="blockchain.js"></script>
+    <script>
+        // Initialize a lightweight chain for the landing page demo
+        const { Blockchain, Wallet, sha256, MINING_REWARD } = window.FlowPayBlockchain;
+        let demoChain, demoWallet;
+
+        try {
+            demoChain = new Blockchain(4);
+            demoWallet = new Wallet('Visitor', demoChain);
+            demoChain.initialize(demoWallet.address);
+
+            // Update live stats
+            const stats = demoChain.getStats();
+            document.getElementById('ls-blocks').textContent = stats.blocks;
+            document.getElementById('ls-txs').textContent = stats.transactions;
+            document.getElementById('ls-hashrate').textContent = '—';
+
+            // Show genesis hash
+            const genesis = demoChain.chain[0];
+            const zeros = genesis.hash.match(/^0+/)?.[0] || '';
+            const rest = genesis.hash.slice(zeros.length);
+            document.getElementById('demo-hash').innerHTML =
+                `<span class="leading-zeros">${zeros}</span><span class="rest">${rest}</span>`;
+            document.getElementById('demo-nonce').textContent = genesis.nonce.toLocaleString();
+            document.getElementById('demo-time').textContent = genesis.miningTime + 'ms';
+            document.getElementById('demo-attempts').textContent = genesis.miningAttempts?.toLocaleString() || genesis.nonce.toLocaleString();
+        } catch (e) {
+            console.error('Demo init error:', e);
+        }
+
+        function demoMine() {
+            const btn = document.getElementById('mine-btn');
+            btn.disabled = true;
+            btn.textContent = '⛏️ Mining...';
+
+            setTimeout(() => {
+                try {
+                    const block = demoChain.mineBlock(demoWallet.address);
+                    const hash = block.hash;
+                    const zeros = hash.match(/^0+/)?.[0] || '';
+                    const rest = hash.slice(zeros.length);
+
+                    document.getElementById('demo-hash').innerHTML =
+                        `<span class="leading-zeros">${zeros}</span><span class="rest">${rest}</span>`;
+                    document.getElementById('demo-nonce').textContent = block.nonce.toLocaleString();
+                    document.getElementById('demo-time').textContent = block.miningTime + 'ms';
+                    document.getElementById('demo-attempts').textContent = block.miningAttempts?.toLocaleString() || block.nonce.toLocaleString();
+
+                    const stats = demoChain.getStats();
+                    document.getElementById('ls-blocks').textContent = stats.blocks;
+                    document.getElementById('ls-txs').textContent = stats.transactions;
+                    document.getElementById('ls-hashrate').textContent =
+                        stats.hashRate > 1000 ? (stats.hashRate / 1000).toFixed(1) + 'K' : stats.hashRate;
+                } catch (e) {
+                    console.error('Mining error:', e);
+                }
+                btn.disabled = false;
+                btn.textContent = '⛏️ Mine Another Block';
+            }, 50);
+        }
+
+        // Animate stats on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.6s ease forwards';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.wp-card, .code-preview, .mining-demo').forEach(el => {
+            el.style.opacity = '0';
+            observer.observe(el);
+        });
+    </script>
+
+</body>
+
+</html>
