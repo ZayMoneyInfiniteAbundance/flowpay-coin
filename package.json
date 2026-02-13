@@ -1,0 +1,28 @@
+{
+    "name": "flowpay-coin",
+    "version": "1.0.0",
+    "description": "FlowPay Coin — Bitcoin whitepaper implemented from scratch in pure JavaScript",
+    "main": "network/node.js",
+    "bin": {
+        "flowpay-node": "./network/node.js",
+        "flowpay-miner": "./network/miner.js"
+    },
+    "scripts": {
+        "node": "node network/node.js",
+        "miner": "node network/miner.js",
+        "dev": "npx serve .",
+        "start": "node network/node.js"
+    },
+    "keywords": [
+        "blockchain",
+        "bitcoin",
+        "cryptocurrency",
+        "p2p",
+        "proof-of-work",
+        "sha256"
+    ],
+    "license": "MIT",
+    "dependencies": {
+        "ws": "^8.16.0"
+    }
+}

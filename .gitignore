@@ -1,4 +1,7 @@
 node_modules
 .DS_Store
 token-info.json
+.flowpay-data*
+.vercel
+
 .vercel

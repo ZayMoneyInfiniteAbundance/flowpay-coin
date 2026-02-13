@@ -457,9 +457,9 @@ class Wallet {
 }
 
 // ============================================================
-// Exports for app.js
+// Isomorphic exports — Node.js + Browser
 // ============================================================
-window.FlowPayBlockchain = {
+const _exports = {
     sha256,
     MerkleTree,
     Transaction,
@@ -468,5 +468,16 @@ window.FlowPayBlockchain = {
     Wallet,
     MINING_REWARD,
     verifySignature,
-    WALLET_REGISTRY
+    WALLET_REGISTRY,
+    generatePrivateKey,
+    derivePublicKey,
+    deriveAddress,
+    signData
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = _exports;
+} else if (typeof window !== 'undefined') {
+    window.FlowPayBlockchain = _exports;
+}
+
